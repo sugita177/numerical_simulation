@@ -1,0 +1,27 @@
+#version: '3'
+
+services:
+  numerical_calculation_python:
+    restart: always
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: numerical_calculation_python
+    tty: true
+    volumes:
+      - ./src:/src
+      - /mnt/wslg:/mnt/wslg
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    environment:
+      - DISPLAY=:0
+      - PULSE_SERVER=unix:/mnt/wslg/PulseServer
+      - WAYLAND_DISPLAY=wayland-0
+      # - XDG_RUNTIME_DIR=/run/user/1000/
+      - XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir/
+      # - DISPLAY=${DISPLAY}
+      # - PULSE_SERVER=${PULSE_SERVER}
+      # - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+      # - XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}
+    # extra_hosts:
+    #   -  host.docker.internal:host-gateway
+    
