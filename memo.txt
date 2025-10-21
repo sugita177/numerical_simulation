@@ -11,5 +11,5 @@ docker compose up -d
 コンテナのシャットダウン
 docker compose down
 
-コンテナ内に入るコマンド（numerical_calculation_pythonはコンテナ名）
-docker container exec -it numerical_calculation_python bash
+コンテナ内に入るコマンド（numerical_simulation_pythonはコンテナ名）
+docker container exec -it numerical_simulation_python bash

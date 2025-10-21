@@ -1,12 +1,12 @@
 #version: '3'
 
 services:
-  numerical_calculation_python:
+  numerical_simulation_python:
     restart: always
     build:
       context: .
       dockerfile: ./Dockerfile
-    container_name: numerical_calculation_python
+    container_name: numerical_simulation_python
     tty: true
     volumes:
       - ./src:/src
