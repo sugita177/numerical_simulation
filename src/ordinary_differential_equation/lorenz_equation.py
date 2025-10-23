@@ -56,13 +56,60 @@ for i in range(N-1):
     y_list[i+1] = y
     z_list[i+1] = z
 
-fig = plt.figure(figsize=(8.0, 6.0))
-plt.xlabel("x")
-plt.xlim(-20, 20)
-plt.ylabel("z")
-plt.ylim(0, 50)
+# 以下はGeminiを使用して作成
 
-plt.grid(True)
-plt.plot(x_list, z_list, color = "b", label = "Runge Kutta")
-plt.legend()
-plt.show()
+# 2次元グラフの描画
+fig_2d, axes = plt.subplots(1, 3, figsize=(15, 5)) # 1行3列のサブプロットを作成
+
+# -----------------
+# 1. xy 平面グラフ
+# -----------------
+axes[0].plot(x_list, y_list, color = "r")
+axes[0].set_title("xy plane")
+axes[0].set_xlabel("x")
+axes[0].set_ylabel("y")
+axes[0].grid(True)
+
+# -----------------
+# 2. yz 平面グラフ
+# -----------------
+axes[1].plot(y_list, z_list, color = "g")
+axes[1].set_title("yz plane")
+axes[1].set_xlabel("y")
+axes[1].set_ylabel("z")
+axes[1].grid(True)
+
+# -----------------
+# 3. xz 平面グラフ
+# -----------------
+axes[2].plot(x_list, z_list, color = "b")
+axes[2].set_title("xz plane")
+axes[2].set_xlabel("x")
+axes[2].set_ylabel("z")
+axes[2].grid(True)
+
+plt.tight_layout() # サブプロット間のスペースを自動調整
+# plt.show() # 3次元グラフと一緒に表示するためにコメントアウトするか、後に移動
+
+# 3次元グラフの描画
+fig_3d = plt.figure(figsize=(10, 8))
+# 3Dプロットを追加するためにadd_subplotにprojection='3d'を指定
+ax_3d = fig_3d.add_subplot(111, projection='3d') 
+
+# -----------------
+# 3次元プロット
+# -----------------
+# plotメソッドは、x, y, zの3つのリストを取ります
+ax_3d.plot(x_list, y_list, z_list, color='purple')
+
+# 軸ラベルの設定
+ax_3d.set_xlabel("X Axis")
+ax_3d.set_ylabel("Y Axis")
+ax_3d.set_zlabel("Z Axis")
+ax_3d.set_title("Lorenz Attractor (3D)") # ローレンツアトラクターの図を描画 
+
+# 視点の設定 (任意)
+# ax_3d.view_init(elev=20, azim=120)
+
+plt.tight_layout() # グラフのレイアウトを調整
+plt.show() # ここで全てのグラフを表示
