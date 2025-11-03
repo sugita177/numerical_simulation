@@ -19,18 +19,19 @@ class Particle:
         self.x += self.v * dt
 
 ## 衝突解決の関数
-def solve_collision(p1: Particle, p2: Particle):
+def solve_collision(p1: Particle, p2: Particle, e: float=1.0):
     """
     質点p1とp2の一次元完全弾性衝突後の速度を計算し、更新する。
     p1: 質点1のオブジェクト
     p2: 質点2のオブジェクト
+    e: 反発係数
     """
     m1, m2 = p1.m, p2.m
     v1i, v2i = p1.v, p2.v
 
     # 衝突後の速度の計算
-    v1f = ( (m1 - m2) / (m1 + m2) ) * v1i + ( (2 * m2) / (m1 + m2) ) * v2i
-    v2f = ( (2 * m1) / (m1 + m2) ) * v1i + ( (m2 - m1) / (m1 + m2) ) * v2i
+    v1f = ( (m1 - e * m2) / (m1 + m2) ) * v1i + ( m2 * (1.0 + e)) / (m1 + m2) * v2i
+    v2f = ( m1 * (1.0 + e)) / (m1 + m2) * v1i + ( (m2 - e * m1) / (m1 + m2) ) * v2i
 
     # 速度を更新
     p1.v = v1f
@@ -44,8 +45,10 @@ def simulate(p1: Particle, p2: Particle, T_max: float=10.0, dt: float=0.01)->lis
     シミュレーションを実行する
     T_max: シミュレーションの最大時間
     dt: 時間刻み幅
+    e: 反発係数
     """
     t = 0.0
+    e = 1.0
     collision_radius = p1.r + p2.r # 衝突判定に必要な2質点の半径の和
     
     # 衝突が発生した後のフラグ。多重衝突を防ぐために使用
@@ -65,7 +68,7 @@ def simulate(p1: Particle, p2: Particle, T_max: float=10.0, dt: float=0.01)->lis
         # 質点間の距離が半径の和以下になったら衝突と判定
         if distance <= collision_radius and not collided_in_step:
             print(f"t={t:.2f}で衝突検出。")
-            solve_collision(p1, p2)
+            solve_collision(p1, p2, e)
             collided_in_step = True # このステップで既に衝突を解決した
             
             # 位置を少し戻して、正確な衝突瞬間に合わせることもできるが、
