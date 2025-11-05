@@ -54,6 +54,9 @@ X, Y = np.meshgrid(np.arange(-Lx, Lx + step, step),
 Ex = np.zeros_like(X, dtype=float)
 Ey = np.zeros_like(Y, dtype=float)
 
+# ポテンシャルを格納する配列
+V = np.zeros_like(X, dtype=float)
+
 # 電場の計算
 for i, xp in enumerate(np.arange(-Lx, Lx + step, step)):
     for j, yp in enumerate(np.arange(-Ly, Ly + step, step)):
@@ -67,12 +70,16 @@ for i, xp in enumerate(np.arange(-Lx, Lx + step, step)):
             r_cubed_inv_list = np.power(r, -3.0)
             # r=0 の場合、r_cubed_inv は inf になるため、ゼロに置換
             r_cubed_inv_list[r == 0] = 0.0
+            # ポテンシャル計算用
+            r_inv_list = np.power(r, -1.0)
+            r_inv_list[r == 0] = 0.0
 
         E_coeff = k * q_list * r_cubed_inv_list
         Ex_p = np.sum(E_coeff * rx)
         Ey_p = np.sum(E_coeff * ry)
         Ex[j, i] = Ex_p
         Ey[j, i] = Ey_p
+        V[j, i] = np.sum(k * q_list * r_inv_list)
 
 # 可視化
 # 電場の強さの最大値を求め、矢印の長さを正規化（見やすくするため）
