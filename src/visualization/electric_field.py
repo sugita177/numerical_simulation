@@ -14,23 +14,23 @@ class Charge:
 # 電荷の設定
 def initialize_charges():
     N = 2 # 電荷数
-    charges = np.ndarray([
+    charges = [
         Charge(1.0, -5.0, 0.0),
         Charge(-1.0, 5.0, 0.0, 0.0),
-    ])
+    ]
     return charges
 
 def get_charge_property_arrays(charges):
-    N = charges.size
+    N = len(charges)
     x_list = np.ndarray(N)
     y_list = np.ndarray(N)
     z_list = np.ndarray(N)
     q_list = np.ndarray(N)
     for i in range(N):
-        x_list[i] = charges.x
-        y_list[i] = charges.y
-        z_list[i] = charges.z
-        q_list[i] = charges.q
+        x_list[i] = charges[i].x
+        y_list[i] = charges[i].y
+        z_list[i] = charges[i].z
+        q_list[i] = charges[i].q
     return q_list, x_list, y_list, z_list
 
 # メイン処理
@@ -55,8 +55,8 @@ Ex = np.zeros_like(X, dtype=float)
 Ey = np.zeros_like(Y, dtype=float)
 
 # 電場の計算
-for i, xp in enumerate(np.arrange(-Lx, Lx + step, step)):
-    for j, yp in enumerate(np.arrange(-Ly, Ly + step, step)):
+for i, xp in enumerate(np.arange(-Lx, Lx + step, step)):
+    for j, yp in enumerate(np.arange(-Ly, Ly + step, step)):
         rx = xp - qx_list
         ry = yp - qy_list
         r = np.sqrt(rx**2 + ry**2)
@@ -90,7 +90,7 @@ plt.figure(figsize=(8, 8))
 
 # 密度（skip）を調整して、矢印が重なりすぎないようにします。
 skip = 2 # 2点に1点を描画
-plt.quiver(X[::skip, ::skip], Y[::skip, ::skip],
+quivar_plot = plt.quiver(X[::skip, ::skip], Y[::skip, ::skip],
            Ex_norm[::skip, ::skip], Ey_norm[::skip, ::skip],
            E_mag[::skip, ::skip], # 色は電場の強さ
            cmap='viridis',
@@ -113,5 +113,5 @@ plt.gca().set_aspect('equal', adjustable='box') # x, y 軸のスケールを合�
 plt.xlim(-Lx - 1, Lx + 1)
 plt.ylim(-Ly - 1, Ly + 1)
 plt.grid(True)
-plt.colorbar(label='Electric Field Magnitude (|E|)') # カラーバーを追加
+plt.colorbar(quivar_plot, label='Electric Field Magnitude (|E|)') # カラーバーを追加
 plt.show()
