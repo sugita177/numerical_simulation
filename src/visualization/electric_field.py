@@ -2,6 +2,8 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D 
+from matplotlib import cm # plot_surfaceの色設定に利用
 
 # 電荷クラス
 class Charge:
@@ -93,11 +95,15 @@ else:
     Ey_norm = Ey
 
 # プロットの作成
-plt.figure(figsize=(8, 8))
+fig, (ax1, ax2_dummy) = plt.subplots(1, 2, figsize=(16, 8))
+
+# ax2_dummyは後で3Dプロット用に上書きするので一旦作成されますが、ここでは使用しません
+# 3Dプロット用のAxesを明示的に作成
+ax2 = fig.add_subplot(1, 2, 2, projection='3d')
 
 # 密度（skip）を調整して、矢印が重なりすぎないようにします。
 skip = 2 # 2点に1点を描画
-quivar_plot = plt.quiver(X[::skip, ::skip], Y[::skip, ::skip],
+quivar_plot = ax1.quiver(X[::skip, ::skip], Y[::skip, ::skip],
            Ex_norm[::skip, ::skip], Ey_norm[::skip, ::skip],
            E_mag[::skip, ::skip], # 色は電場の強さ
            cmap='viridis',
@@ -111,14 +117,33 @@ for q, qx, qy in zip(q_list, qx_list, qy_list):
     color = 'red' if q > 0 else 'blue'
     # 電荷の絶対値が大きいほど、マーカーのサイズも大きくする
     size = abs(q) * 200 
-    plt.scatter(qx, qy, s=size, c=color, marker='o', edgecolors='black', zorder=5, label='Charge' if 'Charge' not in plt.gca().get_legend_handles_labels()[1] else "")
+    ax1.scatter(qx, qy, s=size, c=color, marker='o', edgecolors='black', zorder=5, label='Charge' if 'Charge' not in plt.gca().get_legend_handles_labels()[1] else "")
 
-plt.title("Electric Field Visualization")
-plt.xlabel("x-position")
-plt.ylabel("y-position")
-plt.gca().set_aspect('equal', adjustable='box') # x, y 軸のスケールを合わせる
-plt.xlim(-Lx - 1, Lx + 1)
-plt.ylim(-Ly - 1, Ly + 1)
-plt.grid(True)
-plt.colorbar(quivar_plot, label='Electric Field Magnitude (|E|)') # カラーバーを追加
+ax1.set_title("Electric Field Visualization (2D)")
+ax1.set_xlabel("x-position")
+ax1.set_ylabel("y-position")
+ax1.set_aspect('equal', adjustable='box') # x, y 軸のスケールを合わせる
+ax1.set_xlim(-Lx - 1, Lx + 1)
+ax1.set_ylim(-Ly - 1, Ly + 1)
+ax1.grid(True)
+fig.colorbar(quivar_plot, label='Electric Field Magnitude (|E|)') # カラーバーを追加
+
+## ポテンシャルの3次元プロット (ax2)
+# ポテンシャル V を3D表面プロットとして描画
+# cmap='viridis' や 'coolwarm' など、好みに合わせてカラーマップを選択
+surf = ax2.plot_surface(X, Y, V, cmap=cm.coolwarm, 
+                         linewidth=0, antialiased=False)
+
+ax2.set_title("Electric Potential (3D Surface)")
+ax2.set_xlabel("x-position")
+ax2.set_ylabel("y-position")
+ax2.set_zlabel("Potential (V)")
+# Z軸の表示範囲を設定 (見栄えを良くするため)
+ax2.set_zlim(np.min(V), np.max(V)) 
+
+# 3Dプロット用のカラーバーを追加
+fig.colorbar(surf, ax=ax2, shrink=0.5, aspect=10, label='Electric Potential (V)')
+
+plt.tight_layout() # サブプロット間のスペースを自動調整
+
 plt.show()
