@@ -30,11 +30,20 @@ for i_a in range(Na):
         x = logistic_map(x, a)
         x_list[i_a][i] = x
 
-# --- 可視化：分岐図の描画 ---
+# --- 可視化：分岐図と時系列プロットの統合 ---
 N_transient = 100  # 過渡期として無視する反復回数
 N_plot = Nx - N_transient 
 
-plt.figure(figsize=(10, 6))
+# 描画する a の値 (収束、周期2、カオス)
+a_values_to_examine = [2.8, 3.4, 3.9]
+num_iterations_plot = 50 # 時系列プロットで表示する反復回数
+
+# Figureの作成。縦長にし、複数のグラフを配置
+plt.figure(figsize=(12, 10))
+plt.suptitle('Logistic Map Analysis', fontsize=16)
+
+# --- 1. 分岐図 (上の行全体 1, 2 に配置) ---
+ax1 = plt.subplot(2, 1, 1) # 2行1列の1番目 (上の行全体)
 
 for i_a in range(Na):
     a_val = a_list[i_a]
@@ -45,19 +54,45 @@ for i_a in range(Na):
     # 'a_val' の数だけ x の値のリストを作成
     a_values_for_scatter = np.full(N_plot, a_val)
     
-    # 散布図としてプロット (点が小さく重なって線状に見える)
-    plt.scatter(a_values_for_scatter, x_values_to_plot, 
+    # 散布図としてプロット 
+    ax1.scatter(a_values_for_scatter, x_values_to_plot, 
                 marker='.', 
-                c='b',
-                s=10,        
-                linewidths=0) 
+                s=1,        
+                linewidths=0,
+                c='k') # 分岐図は黒で表示
 
 # グラフの装飾
-plt.title('Bifurcation Diagram of the Logistic Map')
-plt.xlabel('Parameter a')
-plt.ylabel('Value of x')
-plt.xlim(a_s, a_f)
-plt.ylim(0, 1)
-plt.grid(axis='y', linestyle='--', alpha=0.7)
+ax1.set_title('Bifurcation Diagram')
+ax1.set_xlabel('Parameter a')
+ax1.set_ylabel('Value of x')
+ax1.set_xlim(a_s, a_f)
+ax1.set_ylim(0, 1)
+ax1.grid(axis='y', linestyle='--', alpha=0.5)
 
+# --- 2. 時系列プロット (下の行 2, 3 に配置) ---
+# 時系列プロットは、分岐図で計算済みのデータを使用 (最初の num_iterations_plot 回)
+
+for idx, a_val in enumerate(a_values_to_examine):
+    # a_listから a_val に最も近いインデックスを探す
+    i_a = np.argmin(np.abs(a_list - a_val))
+    
+    # 計算済みのデータ x_list[i_a] の最初の num_iterations_plot 回を使用
+    x_sequence = x_list[i_a][:num_iterations_plot]
+    
+    # サブプロットの定義
+    # 2行3列のレイアウトの4番目, 5番目, 6番目にあたる位置
+    ax = plt.subplot(2, 3, idx + 4) 
+    
+    # 時系列プロット
+    ax.plot(range(num_iterations_plot), x_sequence, marker='o', linestyle='-', markersize=3, c='blue')
+    
+    # グラフの装飾
+    ax.set_title(f'Time Series (a $\\approx$ {a_list[i_a]:.3f})') # 実際に使われたaの値を表示
+    ax.set_xlabel('Iteration (t)')
+    ax.set_ylabel('x(t)')
+    ax.set_ylim(0, 1)
+    ax.grid(True, linestyle='--')
+
+# グラフのレイアウト調整と表示
+plt.tight_layout(rect=[0, 0.03, 1, 0.98])
 plt.show()
