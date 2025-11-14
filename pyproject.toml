@@ -1,0 +1,6 @@
+# pyproject.toml
+
+[tool.mypy]
+# 'mpl_toolkits.mplot3d' のような、型情報（スタブ）がないモジュールの
+# importに関する警告を無視する設定です。
+ignore_missing_imports = true
