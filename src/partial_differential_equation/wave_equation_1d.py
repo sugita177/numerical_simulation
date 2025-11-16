@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
+
 # 初期値を返す
 def get_intial_state_sin(x_data, U, wave_width_ratio=0.2):
     """
@@ -32,6 +33,7 @@ def get_intial_state_sin(x_data, U, wave_width_ratio=0.2):
     return u0
 # -----------------------------------
 
+
 # 固定端の境界条件を返す
 def get_fixed_boundary_conditions():
     # 固定端 (ディリクレ条件: u=0)
@@ -39,16 +41,19 @@ def get_fixed_boundary_conditions():
     next_u_right = 0.0
     return next_u_left, next_u_right
 
-# 自由端の境界条件を返す  
+
+# 自由端の境界条件を返す
 def get_free_boundary_conditions(current_u, prev_u, coeff):
     # 自由端 (ノイマン条件: du/dx=0)
     # 左端 (インデックス 0) の更新: u_0^{n+1} = 2u_0^n - u_0^{n-1} + 2C^2 (u_1^n - u_0^n)
-    next_u_left = 2.0 * current_u[0] - prev_u[0] + 2.0 * coeff * (current_u[1] - current_u[0])
-    
-    # 右端 (インデックス Nx-1) の更新: u_{N-1}^{n+1} = 2u_{N-1}^n - u_{N-1}^{n-1} + 2C^2 (u_{N-2}^n - u_{N-1}^n)
-    next_u_right = 2.0 * current_u[-1] - prev_u[-1] + 2.0 * coeff * (current_u[-2] - current_u[-1])
+    next_u_left = 2.0 * current_u[0] - prev_u[0]\
+        + 2.0 * coeff * (current_u[1] - current_u[0])
+
+    # 右端 (インデックス Nx-1) の更新:
+    # u_{N-1}^{n+1} = 2u_{N-1}^n - u_{N-1}^{n-1} + 2C^2 (u_{N-2}^n - u_{N-1}^n)
+    next_u_right = 2.0 * current_u[-1] - prev_u[-1]\
+        + 2.0 * coeff * (current_u[-2] - current_u[-1])
     return next_u_left, next_u_right
-    
 
 
 # 定数
@@ -58,10 +63,10 @@ x_min = 0.0
 x_max = 10.0
 del_t = 0.01
 del_x = 0.05
-v = 1.0 # 波の速さ
+v = 1.0  # 波の速さ
 coeff = (v * del_t / del_x)**2
 # 境界条件の指定
-boundary_conditon = "free" # fixed or free
+boundary_conditon = "free"  # fixed or free
 
 # クーラン条件 (C <= 1) の確認 (ここでは C^2 <= 1)
 if coeff > 1.0:
@@ -71,7 +76,7 @@ Nt: int = int((t_f - t_i) / del_t)
 Nx: int = int((x_max - x_min) / del_x) + 1
 
 u_list = np.zeros([Nt+1, Nx])
-x_data = np.linspace(x_min, x_max, Nx) # x座標のデータを作成
+x_data = np.linspace(x_min, x_max, Nx)  # x座標のデータを作成
 
 # メイン処理
 # 初期化
@@ -83,15 +88,17 @@ u_list[1] = get_intial_state_sin(x_data, U)
 for i in range(1, Nt):
     t = i * del_t
 
-    u_list[i+1, 1:-1] = 2.0 * u_list[i, 1:-1] - u_list[i-1, 1:-1] + coeff * (u_list[i, 2:] - 2 * u_list[i, 1:-1] + u_list[i, :-2])
-    
+    u_list[i+1, 1:-1] = 2.0 * u_list[i, 1:-1] - u_list[i-1, 1:-1]\
+        + coeff * (u_list[i, 2:] - 2 * u_list[i, 1:-1] + u_list[i, :-2])
+
     # 境界条件
     if boundary_conditon == 'fixed':
-         u_list[i+1, 0], u_list[i+1,-1] = get_fixed_boundary_conditions()
+        u_list[i+1, 0], u_list[i+1, -1] = get_fixed_boundary_conditions()
     elif boundary_conditon == 'free':
-         u_list[i+1, 0], u_list[i+1,-1] = get_free_boundary_conditions(u_list[i], u_list[i-1], coeff)
+        u_list[i+1, 0], u_list[i+1, -1]\
+            = get_free_boundary_conditions(u_list[i], u_list[i-1], coeff)
     else:
-            raise ValueError("無効な境界条件タイプです。'fixed' または 'free' を指定してください。")
+        raise ValueError("無効な境界条件タイプです。'fixed' または 'free' を指定してください。")
 
 print(f"シミュレーションが完了しました。全ステップ数: {Nt}")
 
@@ -111,9 +118,11 @@ ax.set_title("Wave equation in 1 Dimension")
 line, = ax.plot([], [], color="b", label="Amplitude")
 x_data = np.linspace(x_min, x_max, Nx)
 
+
 def init():
     line.set_data([], [])
     return line,
+
 
 def update(i):
     data_index = i * skip_steps
@@ -122,12 +131,13 @@ def update(i):
 
     return line,
 
+
 ani = FuncAnimation(
-    fig, 
-    update, 
-    frames=N_frames, # 間引き後のフレーム数を使用
-    init_func=init, 
-    interval=20, # 指定した数値のms ごとに更新 (アニメーションの速度を調整)
+    fig,
+    update,
+    frames=N_frames,  # 間引き後のフレーム数を使用
+    init_func=init,
+    interval=20,  # 指定した数値のms ごとに更新 (アニメーションの速度を調整)
     blit=True
 )
 
