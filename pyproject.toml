@@ -2,5 +2,8 @@
 
 [tool.mypy]
 # 'mpl_toolkits.mplot3d' のような、型情報（スタブ）がないモジュールの
-# importに関する警告を無視する設定です。
+# importに関する警告を無視する設定。
+# 型ヒントの部分で「# type: ignore」を追記する
+# 以下のコマンドで対象ファイルに適用する。
+# mypy <対象のスクリプト名>.py
 ignore_missing_imports = true
