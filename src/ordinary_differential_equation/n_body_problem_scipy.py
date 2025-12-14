@@ -15,7 +15,9 @@ EPS = 1e-1  # 重力計算の特異点を避けるための緩和パラメータ
 # 2. 導関数 f(t, y) の定義 (solve_ivp用)
 # --------------------
 
-def n_body_derivative(t: float, state_flat: np.ndarray, masses: np.ndarray) -> np.ndarray:
+
+def n_body_derivative(
+        t: float, state_flat: np.ndarray, masses: np.ndarray) -> np.ndarray:
     """
     solve_ivp が要求する形式の導関数 dy/dt = f(t, y) を計算する。
     ここで、y は状態変数 (x, y, vx, vy) の平坦化された配列。
@@ -38,20 +40,21 @@ def n_body_derivative(t: float, state_flat: np.ndarray, masses: np.ndarray) -> n
     # 加速度を格納する配列を初期化 (ax, ay)
     accelerations = np.zeros((N_body, 2))
 
-    # NumPyのブロードキャスト機能を使って、より効率的に加速度を計算（オプション）
+    # NumPyのブロードキャスト機能を使って、より効率的に加速度を計算
     # R_diff[i, j] は (pos[j] - pos[i]) のベクトル
-    R_diff = positions[np.newaxis, :, :] - positions[:, np.newaxis, :] # (N_body, N_body, 2)
+    # (N_body, N_body, 2)
+    R_diff = positions[np.newaxis, :, :] - positions[:, np.newaxis, :]
 
     # 距離の二乗 r^2 = ||R_diff||^2
     # R_squared[i, j] は i と j の間の距離の二乗
-    R_squared = np.sum(R_diff**2, axis=2) # (N_body, N_body)
+    R_squared = np.sum(R_diff**2, axis=2)  # (N_body, N_body)
 
     # 距離 r = sqrt(r^2 + EPS^2)
-    R = np.sqrt(R_squared + EPS**2) # (N_body, N_body)
+    R = np.sqrt(R_squared + EPS**2)  # (N_body, N_body)
 
     # 重力定数と質量項 G * mj / r^3
     # M_term[i, j] は j から i にかかる G * mj / r_ij^3 のスカラー項
-    M_term = G * masses[np.newaxis, :] / (R**3) # (N_body, N_body)
+    M_term = G * masses[np.newaxis, :] / (R**3)  # (N_body, N_body)
 
     # 自分自身との相互作用 (R[i, i] = EPS) を無視（加速度への寄与をゼロにする）
     np.fill_diagonal(M_term, 0.0)
@@ -61,11 +64,12 @@ def n_body_derivative(t: float, state_flat: np.ndarray, masses: np.ndarray) -> n
     # Einstein summation (einsum) を使用すると高速
     # 'ij, ijk -> ik': N_body * N_body と N_body * N_body * 2 を計算し、
     #                最初の N_body 軸で合計して N_body * 2 を得る
-    accelerations = np.einsum('ij, ijk -> ik', M_term, R_diff) # (N_body, 2)
+    accelerations = np.einsum('ij, ijk -> ik', M_term, R_diff)  # (N_body, 2)
 
     # 導関数 (dy/dt) は (d_pos/dt, d_vel/dt) = (vel, accel)
     # np.hstack で (N_body, 4) に結合し、さらに平坦化
-    derivative_state = np.hstack((velocities, accelerations)).flatten() # (N_body * 4,)
+    # (N_body * 4,)
+    derivative_state = np.hstack((velocities, accelerations)).flatten()
 
     return derivative_state
 
@@ -79,9 +83,9 @@ t_0: float = 0.0
 t_f: float = 100.0
 # solve_ivp はアダプティブステップサイズを採用するため、del_t は必要ないが、
 # 出力点の制御のために t_span と t_points を定義する
-del_t_output: float = 1e-2 # 結果を記録する間隔
+del_t_output: float = 1e-2  # 結果を記録する間隔
 t_span = (t_0, t_f)
-t_points = np.arange(t_0, t_f + del_t_output, del_t_output) # 出力時間点
+t_points = np.arange(t_0, t_f + del_t_output, del_t_output)  # 出力時間点
 
 # 粒子設定 (N_body)
 N_body: int = 3
@@ -107,9 +111,9 @@ solution = solve_ivp(
     n_body_derivative,
     t_span,
     initial_conditions_flat,
-    method='RK45', # 推奨されるアダプティブステップ法
-    args=(masses,), # 導関数に追加で渡す引数
-    t_eval=t_points # 結果を評価する時間点
+    method='RK45',  # 推奨されるアダプティブステップ法
+    args=(masses,),  # 導関数に追加で渡す引数
+    t_eval=t_points  # 結果を評価する時間点
 )
 
 print(f"シミュレーション完了。状態: {solution.message}")
@@ -142,7 +146,7 @@ ax.set_xlabel("x")
 ax.set_xlim(x_min, x_max)
 ax.set_ylabel("y")
 ax.set_ylim(y_min, y_max)
-ax.set_aspect('equal', adjustable='box') # グラフを正方形に保つ
+ax.set_aspect('equal', adjustable='box')  # グラフを正方形に保つ
 ax.grid(True)
 ax.set_title(f"N-Body Gravitational Problem (N={N_body})")
 
